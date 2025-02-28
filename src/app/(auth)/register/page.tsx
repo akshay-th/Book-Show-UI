@@ -119,14 +119,52 @@ export default function RegisterPage() {
     },
   });
 
-  async function onCustomerSubmit(data:any) {
+  // async function onCustomerSubmit(data:any) {
+  //   setIsLoading(true);
+  //   try {
+  //     // This would be replaced with your actual API call
+  //     console.log('Customer registration submitted', data);
+      
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     toast.success('Registration successful!', {
+  //       description: 'You can now log in with your credentials',
+  //     });
+      
+  //     // Redirect to login page after successful registration
+  //     router.push('/login');
+  //   } catch (error) {
+  //     toast.error('Registration failed', {
+  //       // @ts-ignore
+  //       description: error.message || 'Something went wrong. Please try again.',
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+  async function onCustomerSubmit(data: any) {
     setIsLoading(true);
     try {
-      // This would be replaced with your actual API call
-      console.log('Customer registration submitted', data);
+      const response = await fetch(`http://localhost:3001/api/auth/register/customer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          password: data.password,
+        })
+      });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Registration failed');
+      }
       
       toast.success('Registration successful!', {
         description: 'You can now log in with your credentials',
@@ -144,14 +182,57 @@ export default function RegisterPage() {
     }
   }
 
+  // async function onManagerSubmit(data: any) {
+  //   setIsLoading(true);
+  //   try {
+  //     // This would be replaced with your actual API call
+  //     console.log('Theatre manager registration submitted', data);
+      
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     toast.success('Registration request submitted!', {
+  //       description: 'Your request will be reviewed by our team. You will be notified once approved.',
+  //     });
+      
+  //     // Redirect to login page after successful registration
+  //     router.push('/login');
+  //   } catch (error) {
+  //     toast.error('Registration failed', {
+  //       // @ts-ignore
+  //       description: error.message || 'Something went wrong. Please try again.',
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
   async function onManagerSubmit(data: any) {
     setIsLoading(true);
     try {
-      // This would be replaced with your actual API call
-      console.log('Theatre manager registration submitted', data);
+      const response = await fetch(`http://localhost:3001/api/auth/register/theatre-manager`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          password: data.password,
+          theatreName: data.theatreName,
+          theatreAddress: data.theatreAddress,
+          city: data.city,
+          state: data.state,
+          pincode: data.pincode,
+        })
+      });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Registration failed');
+      }
       
       toast.success('Registration request submitted!', {
         description: 'Your request will be reviewed by our team. You will be notified once approved.',

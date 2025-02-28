@@ -18,6 +18,10 @@
 │   ├── app
 │   │   ├── (admin)
 │   │   ├── (auth)
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   └── register
+│   │   │       └── page.tsx
 │   │   ├── (customer)
 │   │   ├── (theatre-employee)
 │   │   ├── (theatre-manager)
@@ -72,4 +76,4 @@
 ├── tailwind.config.ts
 └── tsconfig.json
 
-21 directories, 52 files
+23 directories, 54 files
