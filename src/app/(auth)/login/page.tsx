@@ -28,6 +28,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { loginUser } from '@/lib/api';
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -61,44 +62,32 @@ export default function LoginPage() {
     },
   });
 
-  async function onLoginSubmit(data:any) {
+  async function onLoginSubmit(data: any) {
     setIsLoading(true);
     try {
-      // This would be replaced with your actual API call
-      console.log('Login submitted', data);
+      const result = await loginUser(data.email, data.password);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Store tokens and user info
+      localStorage.setItem('accessToken', result.accessToken);
+      localStorage.setItem('refreshToken', result.refreshToken);
+      localStorage.setItem('user', JSON.stringify(result.user));
       
-      // Mock different user roles for demo purposes
-      // In a real app, this would come from your authentication API
-      const userRoles = {
-        'customer@example.com': 'customer',
-        'manager@example.com': 'theatre-manager',
-        'employee@example.com': 'theatre-employee',
-        'admin@example.com': 'admin',
-      };
-      
-      // @ts-ignore
-      const userRole = userRoles[data.email] || 'customer';
-      
-      // Success notification
       toast.success("Login successful!", {
-        description: `Logged in as ${userRole}`,
+        description: `Welcome back!`,
       });
       
       // Redirect based on user role
-      switch(userRole) {
-        case 'customer':
-          router.push('/customer/movies');
+      switch(result.user.userType) {
+        case 'CUSTOMER':
+          router.push('/movies');
           break;
-        case 'theatre-manager':
-          router.push('/theatre-manager/dashboard');
+        case 'THEATRE_MANAGER':
+          router.push('/manager-dashboard');
           break;
-        case 'theatre-employee':
-          router.push('/theatre-employee/dashboard');
+        case 'THEATRE_EMPLOYEE':
+          router.push('/employee-dashboard');
           break;
-        case 'admin':
+        case 'SYSTEM_ADMIN':
           router.push('/admin/dashboard');
           break;
         default:
@@ -107,17 +96,175 @@ export default function LoginPage() {
     } catch (error) {
       toast.error("Login failed", {
         // @ts-ignore
-        description: error.message || "Something went wrong. Please try again.",
+        description: error.message || "Invalid email or password. Please try again.",
       });
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function onSendOtp(data:any) {
+  // async function onLoginSubmit(data:any) {
+  //   setIsLoading(true);
+  //   try {
+  //     // This would be replaced with your actual API call
+  //     console.log('Login submitted', data);
+      
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     // Mock different user roles for demo purposes
+  //     // In a real app, this would come from your authentication API
+  //     const userRoles = {
+  //       'customer@example.com': 'customer',
+  //       'manager@example.com': 'theatre-manager',
+  //       'employee@example.com': 'theatre-employee',
+  //       'admin@example.com': 'admin',
+  //     };
+      
+  //     // @ts-ignore
+  //     const userRole = userRoles[data.email] || 'customer';
+      
+  //     // Success notification
+  //     toast.success("Login successful!", {
+  //       description: `Logged in as ${userRole}`,
+  //     });
+      
+  //     // Redirect based on user role
+  //     switch(userRole) {
+  //       case 'customer':
+  //         router.push('/customer/movies');
+  //         break;
+  //       case 'theatre-manager':
+  //         router.push('/theatre-manager/dashboard');
+  //         break;
+  //       case 'theatre-employee':
+  //         router.push('/theatre-employee/dashboard');
+  //         break;
+  //       case 'admin':
+  //         router.push('/admin/dashboard');
+  //         break;
+  //       default:
+  //         router.push('/');
+  //     }
+  //   } catch (error) {
+  //     toast.error("Login failed", {
+  //       // @ts-ignore
+  //       description: error.message || "Something went wrong. Please try again.",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+  // async function onLoginSubmit(data: any) {
+  //   setIsLoading(true);
+  //   try {
+  //     // Replace with your actual backend URL
+  //     const response = await fetch('http://localhost:3001/api/auth/login', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         email: data.email,
+  //         password: data.password,
+  //       }),
+  //     });
+  
+  //     const result = await response.json();
+  
+  //     if (!response.ok) {
+  //       throw new Error(result.error || 'Login failed');
+  //     }
+      
+  //     // Store tokens in localStorage
+  //     localStorage.setItem('accessToken', result.accessToken);
+  //     localStorage.setItem('refreshToken', result.refreshToken);
+  //     localStorage.setItem('user', JSON.stringify(result.user));
+      
+  //     // Success notification
+  //     toast.success("Login successful!", {
+  //       description: `Logged in as ${result.user.userType.toLowerCase()}`,
+  //     });
+      
+  //     // Redirect based on user role
+  //     switch(result.user.userType) {
+  //       case 'CUSTOMER':
+  //         router.push('/customer/movies');
+  //         break;
+  //       case 'THEATRE_MANAGER':
+  //         router.push('/theatre-manager/dashboard');
+  //         break;
+  //       case 'THEATRE_EMPLOYEE':
+  //         router.push('/theatre-employee/dashboard');
+  //         break;
+  //       case 'SYSTEM_ADMIN':
+  //         router.push('/admin/dashboard');
+  //         break;
+  //       default:
+  //         router.push('/');
+  //     }
+  //   } catch (error) {
+  //     toast.error("Login failed", {
+  //       // @ts-ignore
+  //       description: error.message || "Invalid email or password. Please try again.",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
+  // async function onSendOtp(data:any) {
+  //   setIsLoading(true);
+  //   try {
+  //     // This would be your actual OTP sending API call
+  //     console.log('Sending OTP to', data.phoneNumber);
+      
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     setIsOtpSent(true);
+  //     toast.success("OTP sent", {
+  //       description: `We've sent a 6-digit code to ${data.phoneNumber}`,
+  //     });
+  //   } catch (error) {
+  //     toast.error("Failed to send OTP", {
+  //       // @ts-ignore
+  //       description: error.message || "Something went wrong. Please try again.",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
+  // async function onVerifyOtp(data: any) {
+  //   setIsLoading(true);
+  //   try {
+  //     // This would be your actual OTP verification API call
+  //     console.log('Verifying OTP', data);
+      
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     toast.success("Login successful!", {
+  //       description: `Logged in as theatre employee`,
+  //     });
+      
+  //     // Redirect to employee dashboard
+  //     router.push('/theatre-employee/dashboard');
+  //   } catch (error) {
+  //     toast.error("OTP verification failed", {
+  //       // @ts-ignore
+  //       description: error.message || "Invalid OTP. Please try again.",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
+  async function onSendOtp(data: any) {
     setIsLoading(true);
     try {
-      // This would be your actual OTP sending API call
+      // For now we'll simulate this - you can implement this API endpoint later
       console.log('Sending OTP to', data.phoneNumber);
       
       // Simulate API call
@@ -136,15 +283,34 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   }
-
+  
   async function onVerifyOtp(data: any) {
     setIsLoading(true);
     try {
-      // This would be your actual OTP verification API call
+      // For now, simulate a successful login - implement real API call later
       console.log('Verifying OTP', data);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock successful response with tokens and user info
+      const mockResult = {
+        user: {
+          id: 'employee-123',
+          email: `${data.phoneNumber}@example.com`,
+          firstName: 'Theatre',
+          lastName: 'Employee',
+          userType: 'THEATRE_EMPLOYEE',
+          status: 'ACTIVE'
+        },
+        accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token'
+      };
+      
+      // Store tokens
+      localStorage.setItem('accessToken', mockResult.accessToken);
+      localStorage.setItem('refreshToken', mockResult.refreshToken);
+      localStorage.setItem('user', JSON.stringify(mockResult.user));
       
       toast.success("Login successful!", {
         description: `Logged in as theatre employee`,

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/auth-store';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 // Create an axios instance
 const api = axios.create({
@@ -130,3 +130,124 @@ export const foodApi = {
 };
 
 export default api;
+
+// src/lib/api.ts in your frontend project
+// const API_URL = 'http://localhost:3001/api'; // Change to your backend URL
+
+export async function loginUser(email: string, password: string) {
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Login failed');
+  }
+
+  return response.json();
+}
+
+export async function refreshToken(refreshToken: string) {
+  const response = await fetch(`${API_URL}/auth/refresh-token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to refresh token');
+  }
+
+  return response.json();
+}
+
+export async function logoutUser(refreshToken: string) {
+  const response = await fetch(`${API_URL}/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Logout failed');
+  }
+
+  return response.json();
+}
+
+export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('accessToken');
+  
+  const headers = {
+    ...options.headers,
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    // If unauthorized, try refreshing token
+    if (response.status === 401) {
+      const refreshed = await tryRefreshToken();
+      
+      if (refreshed) {
+        // Retry with new token
+        const newToken = localStorage.getItem('accessToken');
+        const newHeaders = {
+          ...options.headers,
+          'Authorization': `Bearer ${newToken}`,
+          'Content-Type': 'application/json',
+        };
+        
+        return fetch(`${API_URL}${endpoint}`, {
+          ...options,
+          headers: newHeaders,
+        });
+      } else {
+        // Redirect to login
+        window.location.href = '/login';
+        throw new Error('Session expired');
+      }
+    }
+
+    return response;
+  } catch (error) {
+    console.error('API request error:', error);
+    throw error;
+  }
+}
+
+async function tryRefreshToken() {
+  try {
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    
+    if (!storedRefreshToken) {
+      return false;
+    }
+    
+    const data = await refreshToken(storedRefreshToken);
+    
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    
+    return true;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    return false;
+  }
+}
