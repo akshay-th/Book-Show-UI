@@ -23,8 +23,22 @@
 │   │   │   └── register
 │   │   │       └── page.tsx
 │   │   ├── (customer)
+│   │   │   └── movies
+│   │   │       └── page.tsx
 │   │   ├── (theatre-employee)
+│   │   │   └── employee-dashboard
+│   │   │       └── page.tsx
 │   │   ├── (theatre-manager)
+│   │   │   └── manager-dashboard
+│   │   │       ├── employees
+│   │   │       │   └── page.tsx
+│   │   │       ├── inventory
+│   │   │       │   └── page.tsx
+│   │   │       ├── movies
+│   │   │       │   └── page.tsx
+│   │   │       ├── page.tsx
+│   │   │       └── shows
+│   │   │           └── page.tsx
 │   │   ├── favicon.ico
 │   │   ├── globals.css
 │   │   ├── layout.tsx
@@ -38,13 +52,15 @@
 │   │   ├── employee
 │   │   │   └── canteen-management.tsx
 │   │   ├── layout
-│   │   │   └── main-layout.tsx
+│   │   │   ├── main-layout.tsx
+│   │   │   └── theatre-manager-layout.tsx
 │   │   ├── manager
 │   │   │   ├── dashboard.tsx
 │   │   │   ├── movie-scheduling.tsx
 │   │   │   └── screen-management.tsx
 │   │   ├── movies
 │   │   │   └── movie-card.tsx
+│   │   ├── protected-route.tsx
 │   │   └── ui
 │   │       ├── avatar.tsx
 │   │       ├── badge.tsx
@@ -58,13 +74,16 @@
 │   │       ├── input.tsx
 │   │       ├── label.tsx
 │   │       ├── popover.tsx
+│   │       ├── progress.tsx
 │   │       ├── select.tsx
 │   │       ├── separator.tsx
 │   │       ├── sheet.tsx
 │   │       ├── sonner.tsx
+│   │       ├── switch.tsx
 │   │       ├── table.tsx
 │   │       ├── tabs.tsx
 │   │       └── tooltip.tsx
+│   ├── contexts
 │   ├── hooks
 │   ├── lib
 │   │   ├── api.ts
@@ -76,4 +95,4 @@
 ├── tailwind.config.ts
 └── tsconfig.json
 
-23 directories, 54 files
+31 directories, 65 files
